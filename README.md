@@ -25,20 +25,7 @@ Ein automatisches Git-Update-Tool, das ein Repository klont/pullt und anschließ
    cd AutoUpdater
    ```
 
-2. **Dependencies installieren: (Muss nicht kann aber sein das es gemacht werden muss) **
-   HEY! Führe mal wenn du im selbem Verzeichniss bist das hier aus:
-   ```bash
-   node autoupdater.js
-   ```
-   Wenn du einen Fehler bekommst führe das die Dependiciys fehlen dann führe den Code unten aus. 
-   ```bash
-   npm init
-   ```
-   ```bash
-   npm install dotenv fs path child_process
-   ```
-
-3. **`.env` Datei einstellen:**
+2. **`.env` Datei einstellen:**
    
    Trage deine Daten in die `.env` Datei im Hauptverzeichnis ein.
 
