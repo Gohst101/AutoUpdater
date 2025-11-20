@@ -15,7 +15,6 @@ Ein automatisches Git-Update-Tool, das ein Repository klont/pullt und anschließ
 ### Voraussetzungen
 
 - Node.js (Version 14 oder höher)
-- Git muss auf dem System installiert sein
 - GitHub Personal Access Token (für private Repositories)
 
 ### Setup
