@@ -27,7 +27,7 @@ Ein automatisches Git-Update-Tool, das ein Repository klont/pullt und anschließ
 
 2. **Dependencies installieren:**
    ```bash
-   npm install
+   npm install dotenv fs path ecex spawn
    ```
 
 3. **`.env` Datei einstellen:**
