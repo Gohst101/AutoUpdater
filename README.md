@@ -1,6 +1,6 @@
 # 👾 AutoUpdater
 
-Ein automatisches Git-Update-Tool, das ein Repository klont/pullt und anschließend einen benutzerdefinierten Befehl ausführt.
+Ein automatisches Git-Update-Tool, das ein Repository beim Starten klont/pullt und anschließend einen benutzerdefinierten Befehl ausführt.
 
 ## 📋 Features
 
