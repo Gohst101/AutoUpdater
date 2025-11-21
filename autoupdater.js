@@ -1,4 +1,5 @@
 require("dotenv").config();
+const { each } = require("async");
 const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
@@ -9,8 +10,81 @@ const {
   BRANCH,
   USER,
   TOKEN,
-  STARTUP_COMMAND
+  STARTUP_COMMAND,
+  FORCED_FILES_DIR
 } = process.env;
+
+function checkForcedFilesFolder() {
+  const forced_folders = path.resolve(FORCED_FILES_DIR);
+  if (!fs.existsSync(forced_folders)) {
+    console.log(`📁 Verzeichnis Forced Folrders existiert nicht.`);
+    fs.mkdir(forced_folders);
+    console.log(`✅ Verzeichnis erstellt.`);
+    copyForcedFilesIntoMainDir();
+  } else {
+    console.log(`✅ Verzeichnis existiert.`);
+    copyForcedFilesIntoMainDir();
+  }
+}
+
+
+
+function copyForcedFilesIntoMainDir() {
+  const forced_folders = path.resolve(FORCED_FILES_DIR);
+
+  if (!FORCED_FILES_DIR) {
+    console.log('ℹ️ Kein FORCED_FILES_DIR definiert. Keine Dateien zu kopieren.');
+    executeStartupCommand();
+    return;
+  }
+
+  if (!fs.existsSync(forced_folders)) {
+    try {
+      fs.mkdirSync(forced_folders, { recursive: true });
+    } catch (mkdirErr) {
+      console.error(`❌ Fehler beim Erstellen des Verzeichnisses '${forced_folders}':\n${mkdirErr}`);
+      executeStartupCommand();
+      return;
+    }
+  }
+
+  fs.readdir(forced_folders, { withFileTypes: true }, (err, entries) => {
+    if (err) {
+      console.error(`❌ Fehler beim Lesen des Verzeichnisses '${forced_folders}':\n${err}`);
+      executeStartupCommand();
+      return;
+    }
+
+    const files = entries.filter((e) => e.isFile()).map((e) => e.name);
+    if (files.length === 0) {
+      executeStartupCommand();
+      return;
+    }
+
+    let pending = files.length;
+    files.forEach((file) => {
+      const sourcePath = path.join(forced_folders, file);
+      const destPath = path.join(path.resolve(REPO_DIR), file);
+
+      try {
+        const destDir = path.dirname(destPath);
+        if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+      } catch (e) {
+        console.error(`❌ Fehler beim Erstellen des Zielverzeichnisses für '${file}':\n${e}`);
+      }
+
+      fs.copyFile(sourcePath, destPath, (copyErr) => {
+        if (copyErr) {
+          console.error(`❌ Fehler beim Kopieren der Datei '${file}':\n${copyErr}`);
+        }
+        if (--pending === 0) {
+          executeStartupCommand();
+        }
+      });
+    });
+  });
+}
+
 
 function getRepoURLWithToken() {
   const repo = new URL(RAW_REPO_URL);
@@ -27,7 +101,7 @@ function cloneRepo() {
       console.error(`❌ Fehler beim Git Clone:\n${stderr}`);
     } else {
       console.log(`✅ Git Clone erfolgreich:\n${stdout}`);
-      executeStartupCommand();
+      checkForcedFilesFolder();
     }
   });
 }
@@ -55,7 +129,7 @@ function pullRepo() {
       }
     } else {
       console.log(`✅ Git Pull erfolgreich:\n${stdout}`);
-      executeStartupCommand();
+      checkForcedFilesFolder();
     }
   });
 }
